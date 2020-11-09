@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agentconfig
+  namespace: hypercloud-multi-agent-system
+data:
+  mgnt-ip: "172.22.6.2"
+  mgnt-port: "5460"
+  cluster-name: "hyper-test"
