@@ -21,4 +21,5 @@ const (
 	PROMETHEUS_QUERY_STORAGE_USAGE      = "sum(   max by (device) (     node_filesystem_size_bytes{job=\"node-exporter\", instance=\"x.x.x.x:xxxx\", fstype!=\"\"}   -     node_filesystem_avail_bytes{job=\"node-exporter\", instance=\"x.x.x.x:xxxx\", fstype!=\"\"}   ) )"
 	PROMETHEUS_QUERY_MEMORY_USAGE       = "((   node_memory_MemTotal_bytes{job=\"node-exporter\", instance=\"x.x.x.x:xxxx\"} -   node_memory_MemFree_bytes{job=\"node-exporter\", instance=\"x.x.x.x:xxxx\"} -   node_memory_Buffers_bytes{job=\"node-exporter\", instance=\"x.x.x.x:xxxx\"} -   node_memory_Cached_bytes{job=\"node-exporter\", instance=\"x.x.x.x:xxxx\"} )) "
 	LABEL_MASTER_ROLE                   = "node-role.kubernetes.io/master"
+	URL_INSTALL_REPO                    = "https://github.com/tmax-cloud/hypercloud-multi-agent-install-repo.git"
 )

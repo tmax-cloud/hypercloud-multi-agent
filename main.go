@@ -67,6 +67,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	ctrl.Log.WithName("Installer").Info("installer start...")
+	util.Install()
+	ctrl.Log.WithName("Installer").Info("installer done")
+
 	go (&util.Collector{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("collector"),
