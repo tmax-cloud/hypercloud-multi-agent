@@ -27,6 +27,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
+	conrollers "github.com/tmax-cloud/hypercloud-multi-agent/controllers"
 	util "github.com/tmax-cloud/hypercloud-multi-agent/util"
 	corev1 "k8s.io/api/core/v1"
 	// +kubebuilder:scaffold:imports
@@ -76,6 +77,15 @@ func main() {
 		Log:    ctrl.Log.WithName("collector"),
 		Scheme: mgr.GetScheme(),
 	}).Collect()
+
+	if err = (&conrollers.ServiceReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("Service"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Service")
+		os.Exit(1)
+	}
 
 	// +kubebuilder:scaffold:builder
 	setupLog.Info("starting manager")

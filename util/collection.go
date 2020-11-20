@@ -26,13 +26,13 @@ import (
 // +kubebuilder:rbac:groups="",resources=nodes;configmaps;services,verbs=get;list;watch;create;update;patch;delete
 
 var (
-	mgntIP               string
-	mgntPort             string
-	myClusterName        string
+	MGMTIP               string
+	MGMTPORT             string
+	MYCLUSTERNAME        string
 	prometheusPort       string
 	prometheusExportPort string
 	myNodes              = &corev1.NodeList{}
-	myNodeInfo           []hyperv1.NodeInfo
+	MYNODEINFO           []hyperv1.NodeInfo
 )
 
 type Collector struct {
@@ -64,11 +64,11 @@ func (c *Collector) Collect() {
 func (c *Collector) handleHCR() {
 	c.updateHCR()
 
-	if err := putRequestHCR(myNodeInfo); err != nil {
+	if err := putRequestHCR(MYNODEINFO); err != nil {
 		klog.Error(err)
 	}
 
-	klog.Info(myNodeInfo)
+	klog.Info(MYNODEINFO)
 }
 
 func (c *Collector) updateHCR() {
@@ -90,9 +90,9 @@ func requestPrometheusMemory() {
 
 		memoryCap, _ := node.Status.Capacity.Memory().AsInt64()
 		resourceMemory.Capacity = strconv.FormatInt(memoryCap, 10)
-		resourceMemory.Usage = requestPrometheusQuery(PROMETHEUS_QUERY_MEMORY_USAGE, myNodeInfo[index].Ip)
+		resourceMemory.Usage = requestPrometheusQuery(PROMETHEUS_QUERY_MEMORY_USAGE, MYNODEINFO[index].Ip)
 
-		myNodeInfo[index].Resources = append(myNodeInfo[index].Resources, resourceMemory)
+		MYNODEINFO[index].Resources = append(MYNODEINFO[index].Resources, resourceMemory)
 	}
 }
 
@@ -105,9 +105,9 @@ func requestPrometheusStorage() {
 		}
 		StorageCap, _ := node.Status.Capacity.StorageEphemeral().AsInt64()
 		resourceStorage.Capacity = strconv.FormatInt(StorageCap, 10)
-		resourceStorage.Usage = requestPrometheusQuery(PROMETHEUS_QUERY_STORAGE_USAGE, myNodeInfo[index].Ip)
+		resourceStorage.Usage = requestPrometheusQuery(PROMETHEUS_QUERY_STORAGE_USAGE, MYNODEINFO[index].Ip)
 
-		myNodeInfo[index].Resources = append(myNodeInfo[index].Resources, resourceStorage)
+		MYNODEINFO[index].Resources = append(MYNODEINFO[index].Resources, resourceStorage)
 	}
 }
 
@@ -120,9 +120,9 @@ func requestPrometheusCPU() {
 		}
 		CPUCap, _ := node.Status.Capacity.Cpu().AsInt64()
 		resourceCPU.Capacity = strconv.FormatInt(CPUCap, 10)
-		resourceCPU.Usage = requestPrometheusQuery(PROMETHEUS_QUERY_CPU_USAGE, myNodeInfo[index].Ip)
+		resourceCPU.Usage = requestPrometheusQuery(PROMETHEUS_QUERY_CPU_USAGE, MYNODEINFO[index].Ip)
 
-		myNodeInfo[index].Resources = append(myNodeInfo[index].Resources, resourceCPU)
+		MYNODEINFO[index].Resources = append(MYNODEINFO[index].Resources, resourceCPU)
 	}
 }
 
@@ -135,9 +135,9 @@ func requestPrometheusPod() {
 		}
 		podCap, _ := node.Status.Capacity.Pods().AsInt64()
 		resourcePod.Capacity = strconv.FormatInt(podCap, 10)
-		resourcePod.Usage = requestPrometheusQuery(PROMETHEUS_QUERY_POD_USAGE, myNodeInfo[index].Ip)
+		resourcePod.Usage = requestPrometheusQuery(PROMETHEUS_QUERY_POD_USAGE, MYNODEINFO[index].Ip)
 
-		myNodeInfo[index].Resources = append(myNodeInfo[index].Resources, resourcePod)
+		MYNODEINFO[index].Resources = append(MYNODEINFO[index].Resources, resourcePod)
 	}
 }
 
@@ -180,9 +180,9 @@ func requestPrometheusQuery(query string, nodeIp string) string {
 
 func putRequestHCR(nodeInfo []hyperv1.NodeInfo) error {
 	payloadbytes, _ := json.Marshal(nodeInfo)
-	req, _ := http.NewRequest("PUT", URL_PREFIX+mgntIP+":"+mgntPort+URL_HYPERCLUSTERRESOURCE_PATH, bytes.NewBuffer(payloadbytes))
+	req, _ := http.NewRequest("PUT", URL_PREFIX+MGMTIP+":"+MGMTPORT+URL_HYPERCLUSTERRESOURCE_PATH, bytes.NewBuffer(payloadbytes))
 	qeuryParam := url.Values{}
-	qeuryParam.Add(CONFIGMAP_MY_CLUSTERNAME, myClusterName)
+	qeuryParam.Add(CONFIGMAP_MY_CLUSTERNAME, MYCLUSTERNAME)
 	req.URL.RawQuery = qeuryParam.Encode()
 
 	client := &http.Client{}
@@ -210,9 +210,9 @@ func (c *Collector) setConfigEnv() {
 			continue
 		}
 
-		mgntIP = cm.Data[CONFIGMAP_MGNT_IP]
-		mgntPort = cm.Data[CONFIGMAP_MGNT_PORT]
-		myClusterName = cm.Data[CONFIGMAP_MY_CLUSTERNAME]
+		MGMTIP = cm.Data[CONFIGMAP_MGNT_IP]
+		MGMTPORT = cm.Data[CONFIGMAP_MGNT_PORT]
+		MYCLUSTERNAME = cm.Data[CONFIGMAP_MY_CLUSTERNAME]
 
 		break
 	}
@@ -252,7 +252,7 @@ func (c *Collector) setConfigEnv() {
 
 func (c *Collector) updateMyNodeInfo() {
 	c.List(context.TODO(), myNodes)
-	myNodeInfo = []hyperv1.NodeInfo{}
+	MYNODEINFO = []hyperv1.NodeInfo{}
 	for _, node := range myNodes.Items {
 		nodeInfo := hyperv1.NodeInfo{
 			Name:      node.Name,
@@ -260,7 +260,7 @@ func (c *Collector) updateMyNodeInfo() {
 			IsMaster:  checkMaster(node),
 			Resources: []hyperv1.ResourceType{},
 		}
-		myNodeInfo = append(myNodeInfo, nodeInfo)
+		MYNODEINFO = append(MYNODEINFO, nodeInfo)
 	}
 }
 
@@ -272,7 +272,7 @@ func checkMaster(node corev1.Node) bool {
 }
 
 func cleanNodeInfoResource() {
-	for index, _ := range myNodeInfo {
-		myNodeInfo[index].Resources = []hyperv1.ResourceType{}
+	for index, _ := range MYNODEINFO {
+		MYNODEINFO[index].Resources = []hyperv1.ResourceType{}
 	}
 }
