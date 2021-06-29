@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -12,7 +11,6 @@ import (
 	gmux "github.com/gorilla/mux"
 	// "github.com/tmax-cloud/hypercloud-api-server/cluster"
 
-	"github.com/tmax-cloud/hypercloud-multi-agent/internal/admission"
 	"github.com/tmax-cloud/hypercloud-multi-agent/internal/common"
 
 	// "github.com/tmax-cloud/hypercloud-multi-agent/cluster"
@@ -100,6 +98,7 @@ func main() {
 		os.Truncate("./logs/multi-agent.log", 0)
 		file.Seek(0, os.SEEK_SET)
 	})
+	prometheus.InstallCommand()
 
 	// keyPair, err := tls.LoadX509KeyPair(certFile, keyFile)
 	// if err != nil {
@@ -110,9 +109,9 @@ func main() {
 	mux := gmux.NewRouter()
 
 	mux.HandleFunc("/install/{module}", serveInstall)
-	mux.HandleFunc("/uninstall/{module}", serveUninstall)
+	// mux.HandleFunc("/uninstall/{module}", serveUninstall)
 	// mux.HandleFunc("/update/{module}", serveUpdate)
-	mux.HandleFunc("/validation", serveValidation)
+	// mux.HandleFunc("/validation", serveValidation)
 	mux.HandleFunc("/healthy", serveModuleHealthy)
 	mux.HandleFunc("/livez", serveLivez)
 
@@ -147,10 +146,10 @@ func serveModuleHealthy(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func serveValidation(w http.ResponseWriter, r *http.Request) {
-	klog.Infof("Http request: method=%s, uri=%s", r.Method, r.URL.Path)
-	serve(w, r, admission.DenyRequest)
-}
+// func serveValidation(w http.ResponseWriter, r *http.Request) {
+// 	klog.Infof("Http request: method=%s, uri=%s", r.Method, r.URL.Path)
+// 	serve(w, r, admission.DenyRequest)
+// }
 
 func serveInstall(res http.ResponseWriter, req *http.Request) {
 	klog.Infof("Http request: method=%s, uri=%s", req.Method, req.URL.Path)
@@ -170,60 +169,60 @@ func serveInstall(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func serveUninstall(res http.ResponseWriter, req *http.Request) {
-	klog.Infof("Http request: method=%s, uri=%s", req.Method, req.URL.Path)
-	vars := gmux.Vars(req)
-	switch req.Method {
-	case http.MethodGet:
-		// cluster.ListInvitation(res, req)
-		break
-	case http.MethodPost:
-		if vars["module"] == PROMETHEUS_MODULE_NAME {
-			prometheus.UnInstallPrometheus(res, req)
-		} else {
-			// errror
-		}
-		break
-	default:
-	}
-}
+// func serveUninstall(res http.ResponseWriter, req *http.Request) {
+// 	klog.Infof("Http request: method=%s, uri=%s", req.Method, req.URL.Path)
+// 	vars := gmux.Vars(req)
+// 	switch req.Method {
+// 	case http.MethodGet:
+// 		// cluster.ListInvitation(res, req)
+// 		break
+// 	case http.MethodPost:
+// 		if vars["module"] == PROMETHEUS_MODULE_NAME {
+// 			prometheus.UnInstallPrometheus(res, req)
+// 		} else {
+// 			// errror
+// 		}
+// 		break
+// 	default:
+// 	}
+// }
 
-func serve(w http.ResponseWriter, r *http.Request, admit admitFunc) {
-	var body []byte
-	if r.Body != nil {
-		if data, err := ioutil.ReadAll(r.Body); err == nil {
-			body = data
-		}
-	}
+// func serve(w http.ResponseWriter, r *http.Request, admit admitFunc) {
+// 	var body []byte
+// 	if r.Body != nil {
+// 		if data, err := ioutil.ReadAll(r.Body); err == nil {
+// 			body = data
+// 		}
+// 	}
 
-	contentType := r.Header.Get("Content-Type")
-	if contentType != "application/json" {
-		klog.Errorf("contentType=%s, expect application/json", contentType)
-		return
-	}
+// 	contentType := r.Header.Get("Content-Type")
+// 	if contentType != "application/json" {
+// 		klog.Errorf("contentType=%s, expect application/json", contentType)
+// 		return
+// 	}
 
-	requestedAdmissionReview := v1beta1.AdmissionReview{}
-	responseAdmissionReview := v1beta1.AdmissionReview{}
+// 	requestedAdmissionReview := v1beta1.AdmissionReview{}
+// 	responseAdmissionReview := v1beta1.AdmissionReview{}
 
-	if err := json.Unmarshal(body, &requestedAdmissionReview); err != nil {
-		klog.Error(err)
-		responseAdmissionReview.Response = admission.ToAdmissionResponse(err)
-	} else {
-		responseAdmissionReview.Response = admit(requestedAdmissionReview)
-	}
+// 	if err := json.Unmarshal(body, &requestedAdmissionReview); err != nil {
+// 		klog.Error(err)
+// 		responseAdmissionReview.Response = admission.ToAdmissionResponse(err)
+// 	} else {
+// 		responseAdmissionReview.Response = admit(requestedAdmissionReview)
+// 	}
 
-	responseAdmissionReview.Response.UID = requestedAdmissionReview.Request.UID
+// 	responseAdmissionReview.Response.UID = requestedAdmissionReview.Request.UID
 
-	respBytes, err := json.Marshal(responseAdmissionReview)
+// 	respBytes, err := json.Marshal(responseAdmissionReview)
 
-	klog.Infof("Response body: %s\n", respBytes)
+// 	klog.Infof("Response body: %s\n", respBytes)
 
-	if err != nil {
-		klog.Error(err)
-		responseAdmissionReview.Response = admission.ToAdmissionResponse(err)
-	}
-	if _, err := w.Write(respBytes); err != nil {
-		klog.Error(err)
-		responseAdmissionReview.Response = admission.ToAdmissionResponse(err)
-	}
-}
+// 	if err != nil {
+// 		klog.Error(err)
+// 		responseAdmissionReview.Response = admission.ToAdmissionResponse(err)
+// 	}
+// 	if _, err := w.Write(respBytes); err != nil {
+// 		klog.Error(err)
+// 		responseAdmissionReview.Response = admission.ToAdmissionResponse(err)
+// 	}
+// }

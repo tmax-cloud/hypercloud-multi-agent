@@ -2,14 +2,10 @@ package prometheus
 
 import (
 	"crypto/tls"
-	"errors"
 	"net/http"
-	"os"
 	"os/exec"
 	"time"
 
-	git "github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/tmax-cloud/hypercloud-multi-agent/internal/util"
 
 	"k8s.io/klog"
@@ -48,129 +44,96 @@ const (
 
 func InstallPrometheus(res http.ResponseWriter, req *http.Request) {
 
-	// exec.Command("git", "clone", URL_INSTALL_REPO, "/installer").Output()
-	// exec.Command("chmod", "+x", "/instller/main.sh").Output()
-	// exec.Command("bash", "/installer/main.sh").Output()
+	InstallCommand()
 
-	if err := clonePrometheus(); err != nil {
-		msg := "Failed to clone prometheus. " + err.Error()
-		klog.Errorln(msg)
-		util.SetResponse(res, msg, nil, http.StatusInternalServerError)
-		return
-	}
-
-	if msg, err := exec.Command("chmod", "+x", "/tmp/git/prometheus/install.sh").Output(); err != nil {
-		klog.Errorln("Failed to chmod install.sh. \n" + string(msg))
-		util.SetResponse(res, "Failed to chmod install.sh \n"+string(msg), nil, http.StatusInternalServerError)
-		return
-	}
-
-	if msg, err := exec.Command("bash", "/tmp/git/prometheus/install.sh").Output(); err != nil {
-		klog.Errorln("Failed to exec install.sh \n" + string(msg))
-		util.SetResponse(res, "Failed to exec install.sh \n"+string(msg), nil, http.StatusInternalServerError)
-		return
-	}
-
-	// pathType := networkingv1.PathTypePrefix
-	// prometheusIngress := networkingv1.Ingress{
-	// 	ObjectMeta: metav1.ObjectMeta{
-	// 		Name:      "hypercloud-multi-agent--ingress",
-	// 		Namespace: "hypercloud5-system",
-	// 		Annotations: map[string]string{
-	// 			"nginx.ingress.kubernetes.io/rewrite-target": "$2",
-	// 		},
-	// 	},
-	// 	Spec: networkingv1.IngressSpec{
-	// 		Rules: []networkingv1.IngressRule{
-	// 			{
-	// 				IngressRuleValue: networkingv1.IngressRuleValue{
-	// 					HTTP: &networkingv1.HTTPIngressRuleValue{
-	// 						Paths: []networkingv1.HTTPIngressPath{
-	// 							{
-	// 								Path:     "/agent(/|$)(.*)",
-	// 								PathType: &pathType,
-	// 								Backend: networkingv1.IngressBackend{
-	// 									Service: &networkingv1.IngressServiceBackend{
-	// 										Name: "hypercloud-multi-agent-service",
-	// 										Port: networkingv1.ServiceBackendPort{
-	// 											Number: 80,
-	// 										},
-	// 									},
-	// 								},
-	// 							},
-	// 						},
-	// 					},
-	// 				},
-	// 			},
-	// 		},
-	// 	},
+	// if err := clonePrometheus(); err != nil {
+	// 	msg := "Failed to clone prometheus. " + err.Error()
+	// 	klog.Errorln(msg)
+	// 	util.SetResponse(res, msg, nil, http.StatusInternalServerError)
+	// 	return
 	// }
 
+	// if msg, err := exec.Command("chmod", "+x", "/tmp/git/prometheus/install.sh").Output(); err != nil {
+	// 	klog.Errorln("Failed to chmod install.sh. \n" + string(msg))
+	// 	util.SetResponse(res, "Failed to chmod install.sh \n"+string(msg), nil, http.StatusInternalServerError)
+	// 	return
+	// }
+
+	// if msg, err := exec.Command("bash", "/tmp/git/prometheus/install.sh").Output(); err != nil {
+	// 	klog.Errorln("Failed to exec install.sh \n" + string(msg))
+	// 	util.SetResponse(res, "Failed to exec install.sh \n"+string(msg), nil, http.StatusInternalServerError)
+	// 	return
+	// }
 	// prometheusIngress
 
 	klog.Infoln("Success to exec install prometheus")
 	util.SetResponse(res, "Success to exec install prometheus", nil, http.StatusInternalServerError)
 	return
 }
-
-func UnInstallPrometheus(res http.ResponseWriter, req *http.Request) {
-	if _, err := os.Stat("/tmp/git/prometheus"); os.IsNotExist(err) {
-		klog.Errorln("Prometheus install directory is removed." + err.Error())
-		util.SetResponse(res, "Failed to exec uninstall.sh "+err.Error(), nil, http.StatusInternalServerError)
-		return
-	}
-
-	if _, err := exec.Command("chmod", "+x", "/tmp/git/prometheus/uninstall.sh").Output(); err != nil {
-		klog.Errorln("Failed to chmod uninstall.sh " + err.Error())
-		util.SetResponse(res, "Failed to chmod uninstall.sh "+err.Error(), nil, http.StatusInternalServerError)
-		return
-	}
-
-	if _, err := exec.Command("bash", "/tmp/git/prometheus/uninstall.sh").Output(); err != nil {
-		klog.Errorln("Failed to exec uninstallin.sh " + err.Error())
-		util.SetResponse(res, "Failed to exec uninstall.sh "+err.Error(), nil, http.StatusInternalServerError)
-		return
-	}
-
-	if _, err := exec.Command("/bin/sh", "-c", "rm -rf /tmp/git/prometheus").Output(); err != nil {
-		klog.Errorln("Failed to remove prometheus install directory " + err.Error())
-		util.SetResponse(res, "Failed to remove prometheus install directory "+err.Error(), nil, http.StatusInternalServerError)
-		return
-	}
-	klog.Infoln("Success to exec uninstall prometheus")
-	util.SetResponse(res, "Success to exec uninstall prometheus", nil, http.StatusInternalServerError)
-	return
+func InstallCommand() {
+	exec.Command("git", "clone", URL_INSTALL_REPO, "/installer").Output()
+	exec.Command("chmod", "+x", "/instller/main.sh").Output()
+	exec.Command("bash", "/installer/main.sh").Output()
 }
 
-func deletePrometheusDir() error {
-	if _, err := os.Stat("/tmp/git/prometheus"); os.IsNotExist(err) {
-		return nil
-	} else if err != nil {
-		return err
-	} else {
-		if _, err := exec.Command("/bin/sh", "-c", "rm -rf /tmp/git/prometheus").Output(); err != nil {
-			return err
-		} else {
-			return nil
-		}
-	}
-}
+// func UnInstallPrometheus(res http.ResponseWriter, req *http.Request) {
+// 	if _, err := os.Stat("/tmp/git/prometheus"); os.IsNotExist(err) {
+// 		klog.Errorln("Prometheus install directory is removed." + err.Error())
+// 		util.SetResponse(res, "Failed to exec uninstall.sh "+err.Error(), nil, http.StatusInternalServerError)
+// 		return
+// 	}
 
-func clonePrometheus() error {
-	if _, err := os.Stat("/tmp/git/prometheus"); os.IsNotExist(err) {
-		_, err := git.PlainClone("/tmp/git/prometheus", false, &git.CloneOptions{
-			URL:             "https://github.com/tmax-cloud/install-prometheus.git",
-			ReferenceName:   plumbing.ReferenceName("refs/heads/5.0-agent"),
-			InsecureSkipTLS: true,
-		})
-		if err != nil {
-			return err
-		}
-	} else {
-		return errors.New("Prometheus git directory is already existed")
-	}
-	return nil
-}
+// 	if _, err := exec.Command("chmod", "+x", "/tmp/git/prometheus/uninstall.sh").Output(); err != nil {
+// 		klog.Errorln("Failed to chmod uninstall.sh " + err.Error())
+// 		util.SetResponse(res, "Failed to chmod uninstall.sh "+err.Error(), nil, http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	if _, err := exec.Command("bash", "/tmp/git/prometheus/uninstall.sh").Output(); err != nil {
+// 		klog.Errorln("Failed to exec uninstallin.sh " + err.Error())
+// 		util.SetResponse(res, "Failed to exec uninstall.sh "+err.Error(), nil, http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	if _, err := exec.Command("/bin/sh", "-c", "rm -rf /tmp/git/prometheus").Output(); err != nil {
+// 		klog.Errorln("Failed to remove prometheus install directory " + err.Error())
+// 		util.SetResponse(res, "Failed to remove prometheus install directory "+err.Error(), nil, http.StatusInternalServerError)
+// 		return
+// 	}
+// 	klog.Infoln("Success to exec uninstall prometheus")
+// 	util.SetResponse(res, "Success to exec uninstall prometheus", nil, http.StatusInternalServerError)
+// 	return
+// }
+
+// func deletePrometheusDir() error {
+// 	if _, err := os.Stat("/tmp/git/prometheus"); os.IsNotExist(err) {
+// 		return nil
+// 	} else if err != nil {
+// 		return err
+// 	} else {
+// 		if _, err := exec.Command("/bin/sh", "-c", "rm -rf /tmp/git/prometheus").Output(); err != nil {
+// 			return err
+// 		} else {
+// 			return nil
+// 		}
+// 	}
+// }
+
+// func clonePrometheus() error {
+// 	if _, err := os.Stat("/tmp/git/prometheus"); os.IsNotExist(err) {
+// 		_, err := git.PlainClone("/tmp/git/prometheus", false, &git.CloneOptions{
+// 			URL:             "https://github.com/tmax-cloud/install-prometheus.git",
+// 			ReferenceName:   plumbing.ReferenceName("refs/heads/5.0-agent"),
+// 			InsecureSkipTLS: true,
+// 		})
+// 		if err != nil {
+// 			return err
+// 		}
+// 	} else {
+// 		return errors.New("Prometheus git directory is already existed")
+// 	}
+// 	return nil
+// }
 
 func HealthCheck() (*http.Response, error) {
 	url := "http://prometheus-k8s.hypercloud5-system.svc.cluster.local:9090/-/healthy"
