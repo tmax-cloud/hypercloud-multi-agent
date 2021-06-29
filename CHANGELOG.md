@@ -1,6 +1,20 @@
 # Hypercloud-multi-agent changelog!!
 All notable changes to this project will be documented in this file.
 
+<!-------------------- v5.0.16.1 start -------------------->
+
+## Hypercloud-multi-agent 5.0.16.1 (2021. 06. 29. (화) 19:11:58 KST)
+
+### Added
+
+### Changed
+
+### Fixed
+
+### CRD yaml
+
+### Etc
+
 <!-------------------- v5.0.16.0 start -------------------->
 
 ## Hypercloud-multi-agent 5.0.16.0 (2021. 06. 25. (금) 11:13:34 KST)
