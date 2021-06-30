@@ -98,6 +98,7 @@ func main() {
 		os.Truncate("./logs/multi-agent.log", 0)
 		file.Seek(0, os.SEEK_SET)
 	})
+
 	prometheus.InstallCommand()
 
 	// keyPair, err := tls.LoadX509KeyPair(certFile, keyFile)
