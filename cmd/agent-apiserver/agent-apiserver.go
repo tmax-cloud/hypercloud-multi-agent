@@ -12,10 +12,11 @@ import (
 	// "github.com/tmax-cloud/hypercloud-api-server/cluster"
 
 	"github.com/tmax-cloud/hypercloud-multi-agent/internal/common"
+	"github.com/tmax-cloud/hypercloud-multi-agent/internal/prometheus"
 
 	// "github.com/tmax-cloud/hypercloud-multi-agent/cluster"
 
-	"github.com/tmax-cloud/hypercloud-multi-agent/internal/prometheus"
+	helm "github.com/tmax-cloud/hypercloud-multi-agent/internal/prometheus"
 	"k8s.io/api/admission/v1beta1"
 	"k8s.io/klog"
 
@@ -100,7 +101,8 @@ func main() {
 	})
 
 	prometheus.InstallCommand()
-
+	helm.InstallCommand()
+	//
 	// keyPair, err := tls.LoadX509KeyPair(certFile, keyFile)
 	// if err != nil {
 	// 	klog.Errorf("Failed to load key pair: %s", err)

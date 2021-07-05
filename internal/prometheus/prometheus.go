@@ -70,6 +70,7 @@ func InstallPrometheus(res http.ResponseWriter, req *http.Request) {
 	util.SetResponse(res, "Success to exec install prometheus", nil, http.StatusInternalServerError)
 	return
 }
+
 func InstallCommand() {
 	exec.Command("git", "clone", URL_INSTALL_REPO, "/installer").Output()
 	exec.Command("chmod", "+x", "/installer/main.sh").Output()
