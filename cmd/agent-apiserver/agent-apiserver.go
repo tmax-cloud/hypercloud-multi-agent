@@ -16,7 +16,8 @@ import (
 
 	// "github.com/tmax-cloud/hypercloud-multi-agent/cluster"
 
-	helm "github.com/tmax-cloud/hypercloud-multi-agent/internal/prometheus"
+	// prometheus "github.com/tmax-cloud/hypercloud-multi-agent/internal/prometheus"
+	helm "github.com/tmax-cloud/hypercloud-multi-agent/internal/helm"
 	"k8s.io/api/admission/v1beta1"
 	"k8s.io/klog"
 
@@ -100,7 +101,9 @@ func main() {
 		file.Seek(0, os.SEEK_SET)
 	})
 
+	klog.Info("Starting install prometheus...")
 	prometheus.InstallCommand()
+	klog.Info("Starting install helm...")
 	helm.InstallCommand()
 	//
 	// keyPair, err := tls.LoadX509KeyPair(certFile, keyFile)

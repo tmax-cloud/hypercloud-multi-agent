@@ -33,7 +33,7 @@ const (
 	PROMETHEUS_QUERY_STORAGE_USAGE          = "sum(   max by (device) (     node_filesystem_size_bytes{job=\"node-exporter\", instance=\"x.x.x.x:xxxx\", fstype!=\"\"}   -     node_filesystem_avail_bytes{job=\"node-exporter\", instance=\"x.x.x.x:xxxx\", fstype!=\"\"}   ) )"
 	PROMETHEUS_QUERY_MEMORY_USAGE           = "((   node_memory_MemTotal_bytes{job=\"node-exporter\", instance=\"x.x.x.x:xxxx\"} -   node_memory_MemFree_bytes{job=\"node-exporter\", instance=\"x.x.x.x:xxxx\"} -   node_memory_Buffers_bytes{job=\"node-exporter\", instance=\"x.x.x.x:xxxx\"} -   node_memory_Cached_bytes{job=\"node-exporter\", instance=\"x.x.x.x:xxxx\"} )) "
 	LABEL_MASTER_ROLE                       = "node-role.kubernetes.io/master"
-	URL_INSTALL_REPO                        = "https://github.com/tmax-cloud/install-helm-operator.git -b 5.0"
+	URL_INSTALL_REPO                        = "https://github.com/tmax-cloud/install-helm-operator.git"
 	HYPERCLOUD_CONSOLE_LABEL_APP            = "app"
 	HYPERCLOUD_CONSOLE_LABEL_APP_KEY        = "console"
 	HYPERCLOUD_CONSOLE_LABEL_HYPERCLOUD     = "hypercloud"
@@ -50,9 +50,9 @@ const (
 // }
 
 func InstallCommand() {
-	exec.Command("git", "clone", URL_INSTALL_REPO, "/installer/helm").Output()
-	exec.Command("bash", "kubectl", "create", "namespace", "helm-ns").Output()
-	exec.Command("bash", "kubectl", "apply", "-f", "/installer/helm/manifest").Output()
+	exec.Command("git", "clone", URL_INSTALL_REPO, "-b", "5.0", "/installer/helm").Output()
+	exec.Command("kubectl", "create", "namespace", "helm-ns").Output()
+	exec.Command("kubectl", "apply", "-f", "/installer/helm/manifest").Output()
 }
 
 func HealthCheck() (*http.Response, error) {
