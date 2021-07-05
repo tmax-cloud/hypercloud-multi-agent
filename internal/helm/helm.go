@@ -51,6 +51,7 @@ const (
 
 func InstallCommand() {
 	exec.Command("git", "clone", URL_INSTALL_REPO, "/installer/helm").Output()
+	exec.Command("bash", "kubectl", "create", "namespace", "helm-ns").Output()
 	exec.Command("bash", "kubectl", "apply", "-f", "/installer/helm/manifest").Output()
 }
 
