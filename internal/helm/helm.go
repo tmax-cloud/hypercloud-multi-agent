@@ -50,9 +50,9 @@ const (
 // }
 
 func InstallCommand() {
-	exec.Command("git", "clone", URL_INSTALL_REPO, "-b", "5.0", "/installer/helm").Output()
+	exec.Command("git", "clone", URL_INSTALL_REPO, "-b", "5.0", "/install-helm").Output()
 	exec.Command("kubectl", "create", "namespace", "helm-ns").Output()
-	exec.Command("kubectl", "apply", "-f", "/installer/helm/manifest").Output()
+	exec.Command("kubectl", "apply", "-f", "/install-helm/manifest").Output()
 }
 
 func HealthCheck() (*http.Response, error) {
