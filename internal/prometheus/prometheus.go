@@ -72,9 +72,21 @@ func InstallPrometheus(res http.ResponseWriter, req *http.Request) {
 }
 
 func InstallCommand() {
-	exec.Command("git", "clone", URL_INSTALL_REPO, "/install-prometheus").Output()
-	exec.Command("chmod", "+x", "/install-prometheus/main.sh").Output()
-	exec.Command("bash", "/install-prometheus/main.sh").Output()
+	if out, err := exec.Command("git", "clone", URL_INSTALL_REPO, "/install-prometheus").Output(); err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println(string(out))
+	}
+	if out, err := exec.Command("chmod", "+x", "/install-prometheus/main.sh").Output(); err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println(string(out))
+	}
+	if out, err := exec.Command("bash", "/install-prometheus/main.sh").Output(); err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println(string(out))
+	}
 }
 
 // func UnInstallPrometheus(res http.ResponseWriter, req *http.Request) {
